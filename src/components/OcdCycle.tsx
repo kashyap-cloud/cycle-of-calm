@@ -103,21 +103,19 @@ const OcdCycle = () => {
   const [step, setStep] = useState(0);
   const [fading, setFading] = useState(false);
 
-  const stage = STAGES[step];
+  const stage = STAGES[step] ?? STAGES[TOTAL - 1];
   const progress = (step + 1) / TOTAL;
   const rotation = step * (360 / 4); // rotate by quarter each step
   const arcEnd = progress * 360;
 
   const handleNext = useCallback(() => {
-    if (step >= TOTAL - 1) return;
     setFading(true);
     setTimeout(() => {
-      setStep((s) => s + 1);
+      setStep((s) => Math.min(s + 1, TOTAL - 1));
       setFading(false);
     }, 300);
-  }, [step]);
+  }, []);
 
-  const stageColor = `hsl(${stage.color})`;
   const isMantra = stage.type === "mantra";
 
   return (
