@@ -47,6 +47,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        stage: {
+          obsession: "hsl(var(--stage-obsession))",
+          anxiety: "hsl(var(--stage-anxiety))",
+          compulsion: "hsl(var(--stage-compulsion))",
+          relief: "hsl(var(--stage-relief))",
+          mantra: "hsl(var(--stage-mantra))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
