@@ -11,17 +11,17 @@ interface Stage {
 }
 
 const STAGES: Stage[] = [
-  { type: "obsession", label: "obsession", text: "A sudden intrusive thought appears.\n\"What if I lose control?\"\nIt feels urgent and important.", button: "Yes… that happens." },
-  { type: "anxiety", label: "anxiety", text: "Your body reacts.\nTension rises.\nYour mind says, \"Fix this now.\"", button: "I feel that." },
-  { type: "compulsion", label: "compulsion", text: "You start checking.\nReplaying.\nAnalyzing the thought to feel safe.", button: "That's exactly what I do." },
-  { type: "relief", label: "relief", text: "Anxiety drops a little.\nYou feel temporary safety.", button: "Okay… that helps." },
-  { type: "obsession", label: "obsession", text: "Your brain learns:\n\"Thought + Checking = Relief.\"\nSo it sends the thought again.", button: "Wait… really?" },
-  { type: "anxiety", label: "anxiety", text: "The thought feels stronger now.\nMore convincing.", button: "That explains a lot." },
-  { type: "compulsion", label: "compulsion", text: "Checking becomes automatic.\nA habit.", button: "I didn't notice that." },
-  { type: "relief", label: "relief", text: "Relief comes again —\nbut fades faster.\nThe loop tightens.", button: "Oh…" },
-  { type: "obsession", label: "obsession", text: "The real fuel isn't the thought.\nIt's how important it feels.", button: "So what now?" },
-  { type: "anxiety", label: "anxiety", text: "Anxiety is uncomfortable —\nbut not dangerous.\nWhat if you didn't solve the thought?", button: "But how?" },
-  { type: "mantra", label: "OCD Mantra", text: "The way out isn't more checking.\nIt's allowing the thought without solving it.\n\nOver time, your brain learns it's not a threat.\n\nThis is what OCD Mantra helps you practice.", button: "I'm ready to practice differently." },
+  { type: "obsession", label: "obsession", text: "A sudden intrusive thought appears.\n\"What if I lose control?\"\nIt feels urgent and important.", button: "I notice the thought." },
+  { type: "anxiety", label: "anxiety", text: "Your body reacts.\nTension rises.\nYour mind says, \"Fix this now.\"", button: "Anxiety is here." },
+  { type: "compulsion", label: "compulsion", text: "You start checking.\nReplaying.\nAnalyzing the thought to feel safe.", button: "I’m doing a compulsion." },
+  { type: "relief", label: "relief", text: "Anxiety drops a little.\nYou feel temporary safety.", button: "Relief is temporary." },
+  { type: "obsession", label: "obsession", text: "Your brain learns:\n\"Thought + Checking = Relief.\"\nSo it sends the thought again.", button: "That reinforces the cycle." },
+  { type: "anxiety", label: "anxiety", text: "The thought feels stronger now.\nMore convincing.", button: "The urge is stronger now." },
+  { type: "compulsion", label: "compulsion", text: "Checking becomes automatic.\nA habit.", button: "It’s becoming automatic." },
+  { type: "relief", label: "relief", text: "Relief comes again —\nbut fades faster.\nThe loop tightens.", button: "The cycle is tightening." },
+  { type: "obsession", label: "obsession", text: "The real fuel isn't the thought.\nIt's how important it feels.", button: "What if I don’t respond?" },
+  { type: "anxiety", label: "anxiety", text: "Anxiety is uncomfortable —\nbut not dangerous.\nWhat if you didn't solve the thought?", button: "Can I sit with the discomfort?" },
+  { type: "mantra", label: "OCD Mantra", text: "The way out isn't more checking.\nIt's allowing the thought without solving it.\n\nOver time, your brain learns it's not a threat.\n\nThis is what OCD Mantra helps you practice.", button: "I’ll allow the thought." },
 ];
 
 const STAGE_COLORS: Record<StageType, string> = {
@@ -41,16 +41,16 @@ const STAGE_ICONS: Record<StageType, React.ReactNode> = {
 };
 
 const TOTAL = STAGES.length;
-const R = 138;
-const SVG = 320;
+const R = 190;
+const SVG = 500;
 const C = SVG / 2;
 
-// Fixed label positions — these never move
+// Fixed label positions — these sit on/near the circle boundary
 const LABELS: { type: StageType; x: number; y: number }[] = [
-  { type: "obsession", x: C, y: 18 },       // top
-  { type: "anxiety", x: SVG - 12, y: C },    // right
-  { type: "compulsion", x: C, y: SVG - 12 }, // bottom
-  { type: "relief", x: 12, y: C },           // left
+  { type: "obsession", x: C, y: C - R - 10 },       // top (50)
+  { type: "anxiety", x: C + R + 10, y: C },        // right (450)
+  { type: "compulsion", x: C, y: C + R + 10 },    // bottom (450)
+  { type: "relief", x: C - R - 10, y: C },         // left (50)
 ];
 
 function polar(cx: number, cy: number, r: number, deg: number) {
@@ -112,7 +112,7 @@ const OcdCycle = () => {
   }, [step]);
 
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-background items-center px-5 py-6 max-w-md mx-auto select-none">
+    <div className="flex flex-col min-h-[100dvh] bg-background items-center px-5 py-6 max-w-xl mx-auto select-none">
       {/* Progress bar */}
       <div className="w-full flex items-center gap-3 mb-4">
         <button
@@ -121,7 +121,7 @@ const OcdCycle = () => {
           aria-label="Go back"
         >
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-            <path d="M13 4L7 10L13 16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M13 4L7 10L13 16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
         <div className="flex-1 h-[6px] bg-muted rounded-full overflow-hidden">
@@ -197,10 +197,11 @@ const OcdCycle = () => {
             const isRight = item.x > SVG - C / 2;
 
             let anchor: React.CSSProperties = {};
-            if (isTop) anchor = { top: item.y, left: "50%", transform: "translateX(-50%)" };
-            else if (isBottom) anchor = { bottom: SVG - item.y, left: "50%", transform: "translateX(-50%)" };
-            else if (isRight) anchor = { right: SVG - item.x, top: "50%", transform: "translateY(-50%)" };
-            else if (isLeft) anchor = { left: item.x, top: "50%", transform: "translateY(-50%)" };
+            // Flip anchors: if it's on top, anchor by its bottom so it grows UP
+            if (isTop) anchor = { bottom: SVG - item.y, left: "50%", transform: "translateX(-50%)" };
+            else if (isBottom) anchor = { top: item.y, left: "50%", transform: "translateX(-50%)" };
+            else if (isRight) anchor = { left: item.x, top: "50%", transform: "translateY(-50%)" };
+            else if (isLeft) anchor = { right: SVG - item.x, top: "50%", transform: "translateY(-50%)" };
 
             return (
               <div
@@ -229,9 +230,8 @@ const OcdCycle = () => {
           <div className="absolute inset-0 flex flex-col items-center justify-center px-10">
             {/* Stage label + icon */}
             <div
-              className={`flex items-center gap-1.5 mb-3 transition-all duration-300 ${
-                fading ? "opacity-0 -translate-y-1" : "opacity-100 translate-y-0"
-              }`}
+              className={`flex items-center gap-1.5 mb-3 transition-all duration-300 ${fading ? "opacity-0 -translate-y-1" : "opacity-100 translate-y-0"
+                }`}
               style={{ color: stageColor }}
             >
               {STAGE_ICONS[stage.type]}
@@ -242,9 +242,8 @@ const OcdCycle = () => {
 
             {/* Content card */}
             <div
-              className={`rounded-2xl p-5 max-w-[230px] text-center transition-all duration-300 ${
-                fading ? "opacity-0 scale-95 translate-y-1" : "opacity-100 scale-100 translate-y-0"
-              }`}
+              className={`rounded-2xl p-5 max-w-[230px] text-center transition-all duration-300 ${fading ? "opacity-0 scale-95 translate-y-1" : "opacity-100 scale-100 translate-y-0"
+                }`}
               style={{
                 backgroundColor: "hsl(var(--card))",
                 border: "1px solid hsl(var(--border))",
@@ -266,9 +265,8 @@ const OcdCycle = () => {
         <button
           onClick={() => advance(1)}
           disabled={step >= TOTAL - 1}
-          className={`w-full py-4 px-6 rounded-2xl text-[15px] font-semibold transition-all duration-300 active:scale-[0.97] ${
-            fading ? "opacity-70 scale-[0.98]" : "opacity-100 scale-100"
-          }`}
+          className={`w-full py-4 px-6 rounded-2xl text-[15px] font-semibold transition-all duration-300 active:scale-[0.97] ${fading ? "opacity-70 scale-[0.98]" : "opacity-100 scale-100"
+            }`}
           style={{
             background: isMantra
               ? "linear-gradient(135deg, hsl(var(--stage-mantra)), hsl(var(--stage-relief)))"
