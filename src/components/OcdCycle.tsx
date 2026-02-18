@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Brain, Zap, RefreshCw, Sparkles, Leaf } from "lucide-react";
+import { Brain, Zap, RefreshCw, Heart } from "lucide-react";
 
 type StageType = "obsession" | "anxiety" | "compulsion" | "relief" | "mantra";
 
@@ -11,72 +11,17 @@ interface Stage {
 }
 
 const STAGES: Stage[] = [
-  {
-    type: "obsession",
-    label: "obsession",
-    text: "A sudden intrusive thought appears.\n\"What if I lose control?\"\nIt feels urgent and important.",
-    button: "Yes… that happens.",
-  },
-  {
-    type: "anxiety",
-    label: "anxiety",
-    text: "Your body reacts.\nTension rises.\nYour mind says, \"Fix this now.\"",
-    button: "I feel that.",
-  },
-  {
-    type: "compulsion",
-    label: "compulsion",
-    text: "You start checking.\nReplaying.\nAnalyzing the thought to feel safe.",
-    button: "That's exactly what I do.",
-  },
-  {
-    type: "relief",
-    label: "relief",
-    text: "Anxiety drops a little.\nYou feel temporary safety.",
-    button: "Okay… that helps.",
-  },
-  {
-    type: "obsession",
-    label: "obsession",
-    text: "Your brain learns:\n\"Thought + Checking = Relief.\"\nSo it sends the thought again.",
-    button: "Wait… really?",
-  },
-  {
-    type: "anxiety",
-    label: "anxiety",
-    text: "The thought feels stronger now.\nMore convincing.",
-    button: "That explains a lot.",
-  },
-  {
-    type: "compulsion",
-    label: "compulsion",
-    text: "Checking becomes automatic.\nA habit.",
-    button: "I didn't notice that.",
-  },
-  {
-    type: "relief",
-    label: "relief",
-    text: "Relief comes again —\nbut fades faster.\nThe loop tightens.",
-    button: "Oh…",
-  },
-  {
-    type: "obsession",
-    label: "obsession",
-    text: "The real fuel isn't the thought.\nIt's how important it feels.",
-    button: "So what now?",
-  },
-  {
-    type: "anxiety",
-    label: "anxiety",
-    text: "Anxiety is uncomfortable —\nbut not dangerous.\nWhat if you didn't solve the thought?",
-    button: "But how?",
-  },
-  {
-    type: "mantra",
-    label: "OCD Mantra",
-    text: "The way out isn't more checking.\nIt's allowing the thought without solving it.\n\nOver time, your brain learns it's not a threat.\n\nThis is what OCD Mantra helps you practice.",
-    button: "I'm ready to practice differently.",
-  },
+  { type: "obsession", label: "obsession", text: "A sudden intrusive thought appears.\n\"What if I lose control?\"\nIt feels urgent and important.", button: "Yes… that happens." },
+  { type: "anxiety", label: "anxiety", text: "Your body reacts.\nTension rises.\nYour mind says, \"Fix this now.\"", button: "I feel that." },
+  { type: "compulsion", label: "compulsion", text: "You start checking.\nReplaying.\nAnalyzing the thought to feel safe.", button: "That's exactly what I do." },
+  { type: "relief", label: "relief", text: "Anxiety drops a little.\nYou feel temporary safety.", button: "Okay… that helps." },
+  { type: "obsession", label: "obsession", text: "Your brain learns:\n\"Thought + Checking = Relief.\"\nSo it sends the thought again.", button: "Wait… really?" },
+  { type: "anxiety", label: "anxiety", text: "The thought feels stronger now.\nMore convincing.", button: "That explains a lot." },
+  { type: "compulsion", label: "compulsion", text: "Checking becomes automatic.\nA habit.", button: "I didn't notice that." },
+  { type: "relief", label: "relief", text: "Relief comes again —\nbut fades faster.\nThe loop tightens.", button: "Oh…" },
+  { type: "obsession", label: "obsession", text: "The real fuel isn't the thought.\nIt's how important it feels.", button: "So what now?" },
+  { type: "anxiety", label: "anxiety", text: "Anxiety is uncomfortable —\nbut not dangerous.\nWhat if you didn't solve the thought?", button: "But how?" },
+  { type: "mantra", label: "OCD Mantra", text: "The way out isn't more checking.\nIt's allowing the thought without solving it.\n\nOver time, your brain learns it's not a threat.\n\nThis is what OCD Mantra helps you practice.", button: "I'm ready to practice differently." },
 ];
 
 const STAGE_COLORS: Record<StageType, string> = {
@@ -87,70 +32,84 @@ const STAGE_COLORS: Record<StageType, string> = {
   mantra: "hsl(var(--stage-mantra))",
 };
 
-const STAGE_ICON_MAP: Record<StageType, React.ReactNode> = {
-  obsession: <Brain size={15} />,
-  anxiety: <Zap size={15} />,
-  compulsion: <RefreshCw size={15} />,
-  relief: <Sparkles size={15} />,
-  mantra: <Leaf size={15} />,
+const STAGE_ICONS: Record<StageType, React.ReactNode> = {
+  obsession: <Brain size={14} />,
+  anxiety: <Zap size={14} />,
+  compulsion: <RefreshCw size={14} />,
+  relief: <Heart size={14} />,
+  mantra: <Heart size={14} />,
 };
 
 const TOTAL = STAGES.length;
-const CIRCLE_RADIUS = 138;
-const SVG_SIZE = 320;
-const CENTER = SVG_SIZE / 2;
+const R = 138;
+const SVG = 320;
+const C = SVG / 2;
 
-function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
-  const rad = ((angleDeg - 90) * Math.PI) / 180;
+// Fixed label positions — these never move
+const LABELS: { type: StageType; x: number; y: number }[] = [
+  { type: "obsession", x: C, y: 18 },       // top
+  { type: "anxiety", x: SVG - 12, y: C },    // right
+  { type: "compulsion", x: C, y: SVG - 12 }, // bottom
+  { type: "relief", x: 12, y: C },           // left
+];
+
+function polar(cx: number, cy: number, r: number, deg: number) {
+  const rad = ((deg - 90) * Math.PI) / 180;
   return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
 }
 
-function describeArc(cx: number, cy: number, r: number, startAngle: number, endAngle: number) {
-  const start = polarToCartesian(cx, cy, r, endAngle);
-  const end = polarToCartesian(cx, cy, r, startAngle);
-  const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+function arcPath(cx: number, cy: number, r: number, start: number, end: number) {
+  const s = polar(cx, cy, r, start);
+  const e = polar(cx, cy, r, end);
+  const large = end - start > 180 ? 1 : 0;
+  return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`;
 }
-
-// The 4 cycle positions around the circle (top, right, bottom, left)
-const CYCLE_LABELS: { type: StageType; angle: number }[] = [
-  { type: "obsession", angle: 0 },
-  { type: "anxiety", angle: 90 },
-  { type: "compulsion", angle: 180 },
-  { type: "relief", angle: 270 },
-];
 
 const OcdCycle = () => {
   const [step, setStep] = useState(0);
   const [fading, setFading] = useState(false);
+  // Track cumulative clockwise rotation (always increases)
+  const [cumulativeRotation, setCumulativeRotation] = useState(0);
 
   const stage = STAGES[step] ?? STAGES[TOTAL - 1];
   const progress = (step + 1) / TOTAL;
-  // Rotate so the current stage type is at top
-  const currentCycleIndex = CYCLE_LABELS.findIndex((c) => c.type === stage.type);
-  const rotation = currentCycleIndex >= 0 ? currentCycleIndex * -90 : 0;
-  const arcEnd = progress * 360;
-
-  const handleNext = useCallback(() => {
-    if (step >= TOTAL - 1) return;
-    setFading(true);
-    setTimeout(() => {
-      setStep((s) => Math.min(s + 1, TOTAL - 1));
-      setFading(false);
-    }, 350);
-  }, [step]);
-
-  const handleBack = useCallback(() => {
-    if (step <= 0) return;
-    setFading(true);
-    setTimeout(() => {
-      setStep((s) => Math.max(s - 1, 0));
-      setFading(false);
-    }, 350);
-  }, [step]);
-
+  const arcDeg = progress * 360;
   const isMantra = stage.type === "mantra";
   const stageColor = STAGE_COLORS[stage.type];
+
+  // Map stage type to which quarter it belongs (for rotation target)
+  const typeToQuarter: Record<StageType, number> = {
+    obsession: 0,
+    anxiety: 1,
+    compulsion: 2,
+    relief: 3,
+    mantra: 0,
+  };
+
+  const advance = useCallback((delta: 1 | -1) => {
+    const nextStep = step + delta;
+    if (nextStep < 0 || nextStep >= TOTAL) return;
+
+    setFading(true);
+
+    const currentType = STAGES[step].type;
+    const nextType = STAGES[nextStep].type;
+    const currentQ = typeToQuarter[currentType];
+    const nextQ = typeToQuarter[nextType];
+
+    // Calculate shortest clockwise step
+    let rotDelta = ((nextQ - currentQ) % 4 + 4) % 4;
+    // For going back, allow counter-clockwise
+    if (delta === -1 && rotDelta > 0) {
+      rotDelta = rotDelta - 4;
+    }
+
+    setTimeout(() => {
+      setStep(nextStep);
+      setCumulativeRotation((prev) => prev + rotDelta * 90);
+      setFading(false);
+    }, 300);
+  }, [step]);
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-background items-center px-5 py-6 max-w-md mx-auto select-none">
@@ -158,7 +117,7 @@ const OcdCycle = () => {
       <div className="w-full flex items-center gap-3 mb-4">
         <button
           className="w-9 h-9 rounded-full flex items-center justify-center text-foreground active:scale-90 transition-transform"
-          onClick={handleBack}
+          onClick={() => advance(-1)}
           aria-label="Go back"
         >
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
@@ -180,16 +139,17 @@ const OcdCycle = () => {
 
       {/* Circle area */}
       <div className="flex-1 flex flex-col items-center justify-center w-full relative">
-        <div className="relative" style={{ width: SVG_SIZE, height: SVG_SIZE }}>
-          {/* SVG — circle + arc */}
+        <div className="relative" style={{ width: SVG, height: SVG }}>
+
+          {/* SVG — dashed circle + progress arc — this rotates */}
           <svg
-            width={SVG_SIZE}
-            height={SVG_SIZE}
-            viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}
+            width={SVG}
+            height={SVG}
+            viewBox={`0 0 ${SVG} ${SVG}`}
             className="absolute inset-0"
             style={{
-              transform: `rotate(${rotation}deg)`,
-              transition: "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              transform: `rotate(${cumulativeRotation}deg)`,
+              transition: "transform 0.65s cubic-bezier(0.34, 1.4, 0.64, 1)",
             }}
           >
             <defs>
@@ -207,65 +167,57 @@ const OcdCycle = () => {
 
             {/* Dashed background circle */}
             <circle
-              cx={CENTER}
-              cy={CENTER}
-              r={CIRCLE_RADIUS}
+              cx={C}
+              cy={C}
+              r={R}
               fill="none"
-              stroke="hsl(var(--muted-foreground) / 0.15)"
+              stroke="hsl(var(--muted-foreground) / 0.13)"
               strokeWidth={1.5}
               strokeDasharray="6 5"
             />
 
-            {/* Solid progress arc */}
-            {arcEnd > 2 && (
+            {/* Progress arc */}
+            {arcDeg > 2 && (
               <path
-                d={describeArc(CENTER, CENTER, CIRCLE_RADIUS, 0, Math.min(arcEnd, 359.5))}
+                d={arcPath(C, C, R, 0, Math.min(arcDeg, 359.5))}
                 fill="none"
                 stroke={isMantra ? "url(#arcGradMantra)" : "url(#arcGrad)"}
                 strokeWidth={3}
                 strokeLinecap="round"
-                style={{ transition: "d 0.6s ease-out, stroke 0.4s ease" }}
               />
             )}
-
-            {/* Cycle position markers (small dots + labels) */}
-            {CYCLE_LABELS.map((item) => {
-              const pos = polarToCartesian(CENTER, CENTER, CIRCLE_RADIUS, item.angle);
-              return (
-                <circle
-                  key={item.type + item.angle}
-                  cx={pos.x}
-                  cy={pos.y}
-                  r={3}
-                  fill={STAGE_COLORS[item.type]}
-                  opacity={0.5}
-                />
-              );
-            })}
           </svg>
 
-          {/* Floating labels around circle (counter-rotated to stay upright) */}
-          {CYCLE_LABELS.map((item) => {
-            const labelR = CIRCLE_RADIUS + 20;
-            const pos = polarToCartesian(CENTER, CENTER, labelR, item.angle);
+          {/* Fixed labels — these DO NOT rotate, they stay in place */}
+          {LABELS.map((item) => {
+            const isActive = item.type === stage.type;
+            const isTop = item.y < C / 2;
+            const isBottom = item.y > SVG - C / 2;
+            const isLeft = item.x < C / 2;
+            const isRight = item.x > SVG - C / 2;
+
+            let anchor: React.CSSProperties = {};
+            if (isTop) anchor = { top: item.y, left: "50%", transform: "translateX(-50%)" };
+            else if (isBottom) anchor = { bottom: SVG - item.y, left: "50%", transform: "translateX(-50%)" };
+            else if (isRight) anchor = { right: SVG - item.x, top: "50%", transform: "translateY(-50%)" };
+            else if (isLeft) anchor = { left: item.x, top: "50%", transform: "translateY(-50%)" };
+
             return (
               <div
-                key={item.type + "-label"}
-                className="absolute flex flex-col items-center gap-0.5 pointer-events-none"
+                key={item.type}
+                className="absolute flex flex-col items-center gap-0.5 pointer-events-none transition-opacity duration-400"
                 style={{
-                  left: pos.x,
-                  top: pos.y,
-                  transform: `translate(-50%, -50%) rotate(${-rotation}deg)`,
-                  transition: "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                  opacity: isMantra ? 0.3 : 0.45,
+                  ...anchor,
+                  opacity: isActive ? 1 : (isMantra ? 0.2 : 0.3),
+                  color: STAGE_COLORS[item.type],
                 }}
               >
-                <span style={{ color: STAGE_COLORS[item.type] }}>
-                  {STAGE_ICON_MAP[item.type]}
-                </span>
+                {STAGE_ICONS[item.type]}
                 <span
-                  className="text-[10px] font-medium"
-                  style={{ color: STAGE_COLORS[item.type] }}
+                  className="text-[10px] font-semibold tracking-wide"
+                  style={{
+                    fontWeight: isActive ? 700 : 500,
+                  }}
                 >
                   {item.type}
                 </span>
@@ -277,12 +229,12 @@ const OcdCycle = () => {
           <div className="absolute inset-0 flex flex-col items-center justify-center px-10">
             {/* Stage label + icon */}
             <div
-              className={`flex items-center gap-1.5 mb-3 transition-all duration-350 ${
+              className={`flex items-center gap-1.5 mb-3 transition-all duration-300 ${
                 fading ? "opacity-0 -translate-y-1" : "opacity-100 translate-y-0"
               }`}
               style={{ color: stageColor }}
             >
-              {STAGE_ICON_MAP[stage.type]}
+              {STAGE_ICONS[stage.type]}
               <span className="text-sm font-bold tracking-wide lowercase">
                 {stage.label}
               </span>
@@ -290,15 +242,15 @@ const OcdCycle = () => {
 
             {/* Content card */}
             <div
-              className={`rounded-2xl p-5 max-w-[230px] text-center transition-all duration-350 ${
+              className={`rounded-2xl p-5 max-w-[230px] text-center transition-all duration-300 ${
                 fading ? "opacity-0 scale-95 translate-y-1" : "opacity-100 scale-100 translate-y-0"
               }`}
               style={{
                 backgroundColor: "hsl(var(--card))",
-                border: `1px solid hsl(var(--border))`,
+                border: "1px solid hsl(var(--border))",
                 boxShadow: isMantra
-                  ? `0 0 40px hsl(var(--stage-mantra) / 0.12), 0 4px 24px hsl(var(--stage-mantra) / 0.08)`
-                  : `0 4px 24px hsl(var(--foreground) / 0.05), 0 1px 4px hsl(var(--foreground) / 0.03)`,
+                  ? "0 0 40px hsl(var(--stage-mantra) / 0.12), 0 4px 24px hsl(var(--stage-mantra) / 0.08)"
+                  : "0 4px 24px hsl(var(--foreground) / 0.05), 0 1px 4px hsl(var(--foreground) / 0.03)",
               }}
             >
               <p className="text-[13.5px] leading-[1.65] text-foreground whitespace-pre-line">
@@ -312,15 +264,15 @@ const OcdCycle = () => {
       {/* Bottom button */}
       <div className="w-full mt-4 pb-4">
         <button
-          onClick={handleNext}
+          onClick={() => advance(1)}
           disabled={step >= TOTAL - 1}
           className={`w-full py-4 px-6 rounded-2xl text-[15px] font-semibold transition-all duration-300 active:scale-[0.97] ${
             fading ? "opacity-70 scale-[0.98]" : "opacity-100 scale-100"
           }`}
           style={{
             background: isMantra
-              ? `linear-gradient(135deg, hsl(var(--stage-mantra)), hsl(var(--stage-relief)))`
-              : `linear-gradient(135deg, hsl(var(--stage-obsession)), hsl(var(--stage-compulsion) / 0.85))`,
+              ? "linear-gradient(135deg, hsl(var(--stage-mantra)), hsl(var(--stage-relief)))"
+              : "linear-gradient(135deg, hsl(var(--stage-obsession)), hsl(var(--stage-compulsion) / 0.85))",
             color: "hsl(var(--background))",
             ...(step >= TOTAL - 1 ? { opacity: 0.7 } : {}),
           }}
