@@ -6,42 +6,46 @@
 
 @layer base {
   :root {
-    --background: 40 33% 97%;
-    --foreground: 330 27% 20%;
+    --background: 37 30% 96%;
+    --foreground: 332 30% 18%;
 
-    --card: 40 20% 98%;
-    --card-foreground: 330 27% 20%;
+    --card: 38 35% 98%;
+    --card-foreground: 332 30% 18%;
 
-    --popover: 40 20% 98%;
-    --popover-foreground: 330 27% 20%;
+    --popover: 38 35% 98%;
+    --popover-foreground: 332 30% 18%;
 
-    --primary: 330 27% 20%;
-    --primary-foreground: 40 33% 97%;
+    --primary: 332 30% 18%;
+    --primary-foreground: 37 30% 96%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 330 27% 20%;
+    --secondary: 28 30% 93%;
+    --secondary-foreground: 332 30% 18%;
 
-    --muted: 40 15% 92%;
-    --muted-foreground: 330 10% 45%;
+    --muted: 30 18% 90%;
+    --muted-foreground: 332 12% 48%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 330 27% 20%;
+    --accent: 28 30% 93%;
+    --accent-foreground: 332 30% 18%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 40 15% 88%;
-    --input: 40 15% 88%;
-    --ring: 330 27% 20%;
+    --border: 32 20% 88%;
+    --input: 32 20% 88%;
+    --ring: 332 30% 18%;
 
     --radius: 1rem;
 
-    /* OCD Cycle stage colors */
-    --stage-obsession: 330 27% 20%;
-    --stage-anxiety: 17 60% 56%;
-    --stage-compulsion: 338 33% 54%;
-    --stage-relief: 127 14% 55%;
-    --stage-mantra: 177 41% 30%;
+    /* Stage colors — warmer, richer palette */
+    --stage-obsession: 332 30% 22%;
+    --stage-anxiety: 20 65% 55%;
+    --stage-compulsion: 340 38% 52%;
+    --stage-relief: 145 28% 48%;
+    --stage-mantra: 174 42% 32%;
+
+    /* Gradient stops for arc */
+    --gradient-warm-start: 20 70% 58%;
+    --gradient-warm-end: 340 40% 50%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -54,14 +58,14 @@
   }
 
   .dark {
-    --background: 330 27% 8%;
-    --foreground: 40 33% 95%;
-    --card: 330 20% 12%;
-    --card-foreground: 40 33% 95%;
-    --popover: 330 20% 12%;
-    --popover-foreground: 40 33% 95%;
-    --primary: 40 33% 95%;
-    --primary-foreground: 330 27% 8%;
+    --background: 332 30% 6%;
+    --foreground: 37 30% 94%;
+    --card: 332 24% 10%;
+    --card-foreground: 37 30% 94%;
+    --popover: 332 24% 10%;
+    --popover-foreground: 37 30% 94%;
+    --primary: 37 30% 94%;
+    --primary-foreground: 332 30% 6%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
