@@ -87,8 +87,14 @@ const OcdCycle = () => {
   };
 
   const advance = useCallback((delta: 1 | -1) => {
-    const nextStep = step + delta;
-    if (nextStep < 0 || nextStep >= TOTAL) return;
+    let nextStep = step + delta;
+
+    // Handle wrap-around for the last step if delta is 1
+    if (nextStep >= TOTAL && delta === 1) {
+      nextStep = 0;
+    } else if (nextStep < 0 || nextStep >= TOTAL) {
+      return;
+    }
 
     setFading(true);
 
@@ -97,16 +103,29 @@ const OcdCycle = () => {
     const currentQ = typeToQuarter[currentType];
     const nextQ = typeToQuarter[nextType];
 
-    // Calculate shortest clockwise step
-    let rotDelta = ((nextQ - currentQ) % 4 + 4) % 4;
-    // For going back, allow counter-clockwise
-    if (delta === -1 && rotDelta > 0) {
-      rotDelta = rotDelta - 4;
+    // Calculate rotation delta
+    let rotDelta;
+    if (nextStep === 0 && step === TOTAL - 1) {
+      // If resetting, just finish the circle or stay at top
+      // Mantra is at 0, Obsession is at 0. rotDelta will be 0.
+      rotDelta = 0;
+    } else {
+      rotDelta = ((nextQ - currentQ) % 4 + 4) % 4;
+      // For going back, allow counter-clockwise
+      if (delta === -1 && rotDelta > 0) {
+        rotDelta = rotDelta - 4;
+      }
     }
 
     setTimeout(() => {
       setStep(nextStep);
-      setCumulativeRotation((prev) => prev + rotDelta * 90);
+      // If we go back to step 0 from last step, we might want to reset rotation or keep it.
+      // Resetting rotation to 0 makes it clear it's a fresh start.
+      if (nextStep === 0 && delta === 1) {
+        setCumulativeRotation(0);
+      } else {
+        setCumulativeRotation((prev) => prev + rotDelta * 90);
+      }
       setFading(false);
     }, 300);
   }, [step]);
@@ -264,7 +283,6 @@ const OcdCycle = () => {
       <div className="w-full mt-4 pb-4">
         <button
           onClick={() => advance(1)}
-          disabled={step >= TOTAL - 1}
           className={`w-full py-4 px-6 rounded-2xl text-[15px] font-semibold transition-all duration-300 active:scale-[0.97] ${fading ? "opacity-70 scale-[0.98]" : "opacity-100 scale-100"
             }`}
           style={{
@@ -272,7 +290,6 @@ const OcdCycle = () => {
               ? "linear-gradient(135deg, hsl(var(--stage-mantra)), hsl(var(--stage-relief)))"
               : "linear-gradient(135deg, hsl(var(--stage-obsession)), hsl(var(--stage-compulsion) / 0.85))",
             color: "hsl(var(--background))",
-            ...(step >= TOTAL - 1 ? { opacity: 0.7 } : {}),
           }}
         >
           {stage.button}

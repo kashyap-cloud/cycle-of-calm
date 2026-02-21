@@ -25,4 +25,4 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKER_REGISTRY }}/lovable/mind-whisperer:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKER_REGISTRY }}/lovable/ocd_cycle:${{ github.ref_name }}
