@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Brain, Zap, RefreshCw, Heart } from "lucide-react";
+import { Brain, Zap, RefreshCw, Heart, ChevronLeft } from "lucide-react";
 
 type StageType = "obsession" | "anxiety" | "compulsion" | "relief" | "mantra";
 
@@ -132,6 +132,23 @@ const OcdCycle = () => {
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-background items-center px-5 py-6 max-w-xl mx-auto select-none">
+      {/* Top Back Button */}
+      <div className="w-full flex justify-start mb-2">
+        <button
+          onClick={() => {
+            if (window.parent !== window) {
+              window.parent.postMessage({ action: 'exit' }, 'https://web.mantracare.com');
+            } else {
+              window.location.href = 'https://web.mantracare.com';
+            }
+          }}
+          className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors rounded-full"
+          aria-label="Exit"
+        >
+          <ChevronLeft size={24} />
+        </button>
+      </div>
+
       {/* Progress bar */}
       <div className="w-full flex items-center gap-3 mb-4">
         <button
